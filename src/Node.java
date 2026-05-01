@@ -418,6 +418,7 @@ public class Node implements NodeInterface {
     }
     private void handleExistsRequest(String txID, String message, InetAddress senderAddress, int senderPort) throws Exception {
         String body = message.substring(4).trim();
+        if (body.matches("^\\d+ .*")) body = body.substring(body.indexOf(' ') + 1).trim();
         int[] r = nextEncodedStringIndices(body);
         if (r == null) return;
         String key = body.substring(r[0], r[1]);
@@ -430,6 +431,7 @@ public class Node implements NodeInterface {
     }
     private void handleReadRequest(String txID, String message, InetAddress senderAddress, int senderPort) throws Exception {
         String body = message.substring(4).trim();
+        if (body.matches("^\\d+ .*")) body = body.substring(body.indexOf(' ') + 1).trim();
         int[] r = nextEncodedStringIndices(body);
         if (r == null) return;
         String key = body.substring(r[0], r[1]);
@@ -448,9 +450,7 @@ public class Node implements NodeInterface {
 
     private void handleWriteRequest(String txID, String message, InetAddress senderAddress, int senderPort) throws Exception {
         String body = message.substring(4).trim();
-        if (body.matches("^\\d+ .*")) {
-            body = body.substring(body.indexOf(' ') + 1).trim();
-        }
+        if (body.matches("^\\d+ .*")) { body = body.substring(body.indexOf(' ') + 1).trim();}
 
         int[] r1 = nextEncodedStringIndices(body);
         if (r1 == null) return;
@@ -475,7 +475,7 @@ public class Node implements NodeInterface {
 
     private void handleCASRequest(String txID, String message, InetAddress senderAddress, int senderPort) throws Exception {
         String body = message.substring(4).trim();
-
+        if (body.matches("^\\d+ .*")) body = body.substring(body.indexOf(' ') + 1).trim();
         int[] r1 = nextEncodedStringIndices(body);
         if (r1 == null) return;
         String key = body.substring(r1[0], r1[1]);

@@ -21,8 +21,11 @@ Working Functionality
  Write (W/X) messages
  Compare-and-Swap (C/D) messages
  Relay (V) messages
- UDP retransmission (5 second timeout, 3 retries)
+ UDP handling
+ -3 retries
+ -5 second timeout
  Peer discovery via Nearest lookups
+ 3/7 poems printed
 =====================
 
 Describe what you think should work.

@@ -138,17 +138,24 @@ public class Node implements NodeInterface {
         byte[] myHash = HashID.computeHashID(nodeName);
         String myHashHex = bytesToHex(myHash);
 
+        int maxRounds = 5;
+        for (int round = 0; round < maxRounds; round++) {
+            int peersBefore = knownNodes.size();
 
-        for (Map.Entry<String, String> entry : new HashMap<>(knownNodes).entrySet()) {
-            String address = entry.getValue();
-            if (address == null) continue;
-            String[] parts = address.split(":");
-            String ip = parts[0];
-            int port = Integer.parseInt(parts[1]);
+            for (Map.Entry<String, String> entry : new HashMap<>(knownNodes).entrySet()) {
+                String address = entry.getValue();
+                if (address == null) continue;
+                String[] parts = address.split(":");
+                String ip = parts[0];
+                int port = Integer.parseInt(parts[1]);
 
-            String txID = generateTxID();
-            String message = txID + " N " + myHashHex;
-            String response = sendAndWait(message, ip, port, txID);
+                String txID = generateTxID();
+                String message = txID + " N " + myHashHex;
+                sendAndWait(message, ip, port, txID);
+            }
+
+            // Stop early if no new peers discovered this round
+            if (knownNodes.size() == peersBefore) break;
         }
     }
 

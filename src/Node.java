@@ -263,6 +263,7 @@ public class Node implements NodeInterface {
 
         byte[] keyHash = HashID.computeHashID(key);
         String keyHashHex = bytesToHex(keyHash);
+        System.out.println("DEBUG read: knownNodes=" + knownNodes.size() + " peers=" + knownNodes.keySet());
         List<String> closest = getClosestNodes(keyHashHex, 3);
 
         for (String targetNode : closest) {

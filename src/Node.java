@@ -127,6 +127,8 @@ public class Node implements NodeInterface {
             socket.setSoTimeout(0);
         }
 
+        int peersBefore = knownNodes.size();
+
         byte[] buffer = new byte[65536];
         while (true) {
             try {
@@ -134,9 +136,38 @@ public class Node implements NodeInterface {
                 socket.receive(packet);
                 String message = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
                 processMessage(message, packet.getAddress(), packet.getPort());
+
+                // If we just learned about new peers, do a Nearest lookup to discover more
+                if (knownNodes.size() > peersBefore) {
+                    peersBefore = knownNodes.size();
+                    discoverPeers();
+                }
             } catch (java.net.SocketTimeoutException e) {
                 return;
             }
+        }
+    }
+
+    // Send Nearest (N) requests to all known peers to discover more nodes
+    private void discoverPeers() throws Exception {
+        byte[] myHash = HashID.computeHashID(nodeName);
+        String myHashHex = bytesToHex(myHash);
+
+        // Ask every known peer for nodes closest to us
+        for (Map.Entry<String, String> entry : new HashMap<>(knownNodes).entrySet()) {
+            String address = entry.getValue();
+            if (address == null) continue;
+            String[] parts = address.split(":");
+            String ip = parts[0];
+            int port = Integer.parseInt(parts[1]);
+
+            String txID = generateTxID();
+            // Format: "XX N <hashIDhex>"
+            String message = txID + " N " + myHashHex;
+            String response = sendAndWait(message, ip, port, txID);
+
+            // Response is handled by processMessage -> handleNearestResponse
+            // which automatically adds new peers to knownNodes
         }
     }
 

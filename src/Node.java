@@ -450,6 +450,19 @@ public class Node implements NodeInterface {
 
     private void handleWriteRequest(String txID, String message, InetAddress senderAddress, int senderPort) throws Exception {
         String body = message.substring(4).trim();
+        String[] plainParts = body.split(" ");
+        if (plainParts.length >= 4 && plainParts[0].matches("\\d+") && plainParts[2].matches("\\d+")) {
+            String key = plainParts[1];
+            String value = plainParts[3];
+            char code = localStore.containsKey(key) ? 'R' : 'A';
+            localStore.put(key, value);
+            if (key.startsWith("N:") && value.contains(":")) {
+                knownNodes.put(key.substring(2), value);
+            }
+            String response = txID + " X " + code;
+            sendMessage(response, senderAddress, senderPort);
+            return;
+        }
         if (body.matches("^\\d+ .*")) { body = body.substring(body.indexOf(' ') + 1).trim();}
 
         int[] r1 = nextEncodedStringIndices(body);

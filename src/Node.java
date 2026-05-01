@@ -448,6 +448,9 @@ public class Node implements NodeInterface {
 
     private void handleWriteRequest(String txID, String message, InetAddress senderAddress, int senderPort) throws Exception {
         String body = message.substring(4).trim();
+        if (body.matches("^\\d+ .*")) {
+            body = body.substring(body.indexOf(' ') + 1).trim();
+        }
 
         int[] r1 = nextEncodedStringIndices(body);
         if (r1 == null) return;
